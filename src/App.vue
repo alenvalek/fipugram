@@ -41,6 +41,8 @@
                   type="search"
                   placeholder="Search"
                   aria-label="Search"
+                  v-model="searchTermP"
+                  @input="handleChange"
                />
             </form>
          </div>
@@ -48,6 +50,24 @@
       <router-view />
    </div>
 </template>
+
+<script>
+import { mapMutations } from 'vuex';
+export default {
+   name: 'App',
+   data() {
+      return {
+         searchTermP: '',
+      };
+   },
+   methods: {
+      ...mapMutations(['searchTerm']),
+      handleChange() {
+         this.searchTerm(this.searchTermP);
+      },
+   },
+};
+</script>
 
 <style lang="scss">
 #app {
