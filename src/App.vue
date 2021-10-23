@@ -1,5 +1,5 @@
 <template>
-   <div id="app">
+   <div id="app" v-if="loaded">
       <nav id="nav" class="navbar navbar-expand-lg navbar-light bg-light">
          <a class="navbar-brand" href="#">
             <img
@@ -21,7 +21,11 @@
          >
             <span class="navbar-toggler-icon"></span>
          </button>
-         <div class="collapse navbar-collapse" id="navbarNav">
+         <div
+            v-if="!currentUser"
+            class="collapse navbar-collapse"
+            id="navbarNav"
+         >
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                <li class="nav-item">
                   <router-link to="/" class="nav-link">Home</router-link>
@@ -46,24 +50,84 @@
                />
             </form>
          </div>
+         <div v-else class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+               <li class="nav-item">
+                  <router-link to="/" class="nav-link">Home</router-link>
+               </li>
+               <li class="nav-item">
+                  <router-link to="/dashboard" class="nav-link"
+                     >Dashboard</router-link
+                  >
+               </li>
+               <li class="nav-item">
+                  <a
+                     href="javascript:void(0)"
+                     @click="logoutUser"
+                     class="btn btn-primary text-light"
+                     >Logout</a
+                  >
+               </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+               <input
+                  class="form-control mr-sm-2"
+                  type="search"
+                  placeholder="Search"
+                  aria-label="Search"
+                  v-model="searchTermP"
+                  @input="handleChange"
+               />
+            </form>
+         </div>
       </nav>
       <router-view />
    </div>
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapMutations, mapGetters } from 'vuex';
+import firebase from '@/firebase';
+
 export default {
    name: 'App',
    data() {
       return {
          searchTermP: '',
+         loaded: false,
       };
    },
+   created() {
+      firebase.auth().onAuthStateChanged((user) => {
+         this.loaded = true;
+         const curRoute = this.$router.currentRoute;
+         if (user) {
+            this.user(user);
+            if (!curRoute.meta.needsUser) {
+               this.$router.replace({ name: 'Home' });
+            }
+         } else {
+            this.user(null);
+         }
+      });
+   },
+   computed: {
+      ...mapGetters({ currentUser: 'user' }),
+   },
    methods: {
-      ...mapMutations(['searchTerm']),
+      ...mapMutations(['searchTerm', 'user']),
       handleChange() {
          this.searchTerm(this.searchTermP);
+      },
+      async logoutUser() {
+         try {
+            const auth = firebase.auth();
+            await firebase.auth().signOut(auth);
+            this.user(null);
+            this.$router.replace('/login');
+         } catch (error) {
+            console.log(error);
+         }
       },
    },
 };

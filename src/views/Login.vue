@@ -5,7 +5,7 @@
          <div class="row">
             <div class="col-sm"></div>
             <div class="col-sm">
-               <form>
+               <form @submit.prevent="signIn">
                   <div class="form-group">
                      <label for="exampleInputEmail1">Email address</label>
                      <input
@@ -32,6 +32,9 @@
                   </div>
                   <button type="submit" class="btn btn-primary">Submit</button>
                </form>
+               <div v-if="error" class="alert alert-danger mt-3" role="alert">
+                  {{ error }}
+               </div>
             </div>
             <div class="col-sm"></div>
          </div>
@@ -40,13 +43,29 @@
 </template>
 
 <script>
+import firebase from '@/firebase';
+
 export default {
    name: 'Login',
    data() {
       return {
          email: '',
          password: '',
+         error: '',
       };
+   },
+   methods: {
+      async signIn() {
+         try {
+            const cred = await firebase
+               .auth()
+               .signInWithEmailAndPassword(this.email, this.password);
+            console.log(cred);
+            this.$router.replace({ name: 'Home' });
+         } catch (err) {
+            this.error = err.message;
+         }
+      },
    },
 };
 </script>

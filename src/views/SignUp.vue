@@ -5,7 +5,7 @@
          <div class="row">
             <div class="col-sm"></div>
             <div class="col-sm">
-               <form>
+               <form @submit.prevent="signUp">
                   <div class="form-group">
                      <label for="exampleInputEmail1">Email address</label>
                      <input
@@ -32,13 +32,23 @@
                      <label for="exampleInputPassword1">Password</label>
                      <input
                         type="password"
-                        v-model="password"
+                        v-model="passwordConfirm"
                         class="form-control"
                         placeholder="Confirm Password"
                      />
                   </div>
                   <button type="submit" class="btn btn-primary">Submit</button>
                </form>
+               <div v-if="error" class="alert alert-danger mt-3" role="alert">
+                  {{ error }}
+               </div>
+               <div
+                  v-if="success"
+                  class="alert alert-success mt-3"
+                  role="alert"
+               >
+                  Korisnički račun uspješno kreiran.
+               </div>
             </div>
             <div class="col-sm"></div>
          </div>
@@ -47,6 +57,8 @@
 </template>
 
 <script>
+import firebase from '@/firebase';
+
 export default {
    name: 'SignUp',
    data() {
@@ -54,7 +66,34 @@ export default {
          email: '',
          password: '',
          passwordConfirm: '',
+         error: null,
+         success: false,
       };
+   },
+   methods: {
+      clearForm() {
+         this.email = '';
+         this.password = '';
+         this.passwordConfirm = '';
+         this.error = null;
+         this.success = false;
+      },
+      async signUp() {
+         try {
+            if (this.password == this.passwordConfirm) {
+               await firebase
+                  .auth()
+                  .createUserWithEmailAndPassword(this.email, this.password);
+               this.clearForm();
+               this.success = true;
+            } else {
+               this.error = 'Error: Vaše lozinke se ne podudaraju';
+            }
+         } catch (err) {
+            this.clearForm();
+            this.error = err.message;
+         }
+      },
    },
 };
 </script>
