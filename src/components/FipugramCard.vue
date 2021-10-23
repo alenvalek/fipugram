@@ -9,7 +9,7 @@
       <div
          class="card-footer d-flex justify-content-between align-items-center"
       >
-         <h5>{{ time }}</h5>
+         <h5>{{ postedFromNow }}</h5>
          <div>
             <h5>{{ author }}</h5>
             <img class="rounded" src="https://picsum.photos/100" />
@@ -19,9 +19,15 @@
 </template>
 
 <script>
+import moment from 'moment';
 export default {
    props: ['title', 'time', 'url', 'author'],
    name: 'FipugramCard',
+   computed: {
+      postedFromNow() {
+         return moment(this.time).fromNow();
+      },
+   },
 };
 </script>
 

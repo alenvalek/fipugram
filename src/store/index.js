@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { db } from '@/firebase';
 
 Vue.use(Vuex);
 
@@ -7,6 +8,7 @@ export default new Vuex.Store({
    state: {
       searchTerm: '',
       user: null,
+      posts: [],
    },
    getters: {
       searchTerm(state) {
@@ -14,6 +16,9 @@ export default new Vuex.Store({
       },
       user(state) {
          return state.user;
+      },
+      posts(state) {
+         return state.posts;
       },
    },
    mutations: {
@@ -23,7 +28,23 @@ export default new Vuex.Store({
       user(state, payload) {
          state.user = payload;
       },
+      posts(state, payload) {
+         state.posts = payload;
+      },
    },
-   actions: {},
+   actions: {
+      async posts(context) {
+         let posts = [];
+         db.collection('posts')
+            .orderBy('posted_at')
+            .get()
+            .then((query) => {
+               query.forEach((doc) => {
+                  posts.push(doc.data());
+               });
+            });
+         context.commit('posts', posts);
+      },
+   },
    modules: {},
 });
