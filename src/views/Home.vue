@@ -1,14 +1,17 @@
 <template>
-   <div class="jumbotron jumbotron-fluid">
-      <div class="container">
-         <h1 class="display-4">Fipugram</h1>
-         <p class="lead">Dobro došli na fipugram!</p>
-      </div>
+   <div class="row">
+      <div class="col-1">Ovdje ne znam sta je</div>
+      <div class="col-7"><FipugramCard /></div>
+      <div class="col-3">Sidebar brr</div>
    </div>
 </template>
 
 <script>
+import FipugramCard from '@/components/FipugramCard.vue';
 export default {
    name: 'Home',
+   components: {
+      FipugramCard,
+   },
 };
 </script>
